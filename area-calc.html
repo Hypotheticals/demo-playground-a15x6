@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五年級幾何面積原理探索</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #f39c12;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f8f9fa;
+        }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }
+        h1 { color: #2c3e50; text-align: center; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        select, input, button { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; margin-top: 5px; }
+        button { cursor: pointer; transition: 0.3s; background: var(--primary); color: white; border: none; font-weight: bold; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        #canvas-container { position: relative; width: 100%; height: 300px; border: 2px dashed #ccc; margin: 20px 0; overflow: hidden; background: #fff; }
+        .shape { position: absolute; transition: all 1.5s ease-in-out; opacity: 0.8; }
+        .explanation { background: #eef2f7; padding: 15px; border-left: 5px solid var(--primary); margin: 10px 0; min-height: 50px; }
+        #quiz-section { display: none; border-top: 2px solid #eee; pt: 20px; text-align: center; }
+        .feedback { font-weight: bold; margin-top: 10px; }
+        .correct { color: var(--success); }
+        .wrong { color: var(--error); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📐 幾何圖形面積原理實驗室</h1>
+    
+    <div class="controls">
+        <div class="input-group">
+            <label>選擇圖形：</label>
+            <select id="shapeType" onchange="resetUI()">
+                <option value="parallelogram">平行四邊形 (割補成矩形)</option>
+                <option value="triangle">三角形 (拼湊成平行四邊形)</option>
+                <option value="trapezoid">梯形 (拼湊成平行四邊形)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label id="label1">底 (b):</label>
+            <input type="number" id="val1" value="200" min="50" max="400">
+        </div>
+        <div class="input-group">
+            <label id="label2">高 (h):</label>
+            <input type="number" id="val2" value="100" min="50" max="250">
+        </div>
+        <div class="input-group" id="group3" style="display:none;">
+            <label>上底 (a):</label>
+            <input type="number" id="val3" value="100" min="50" max="300">
+        </div>
+    </div>
+
+    <button onclick="startDemonstration()" style="width: 100%;">開始動畫演示原理</button>
+
+    <div id="canvas-container">
+        </div>
+
+    <div class="explanation" id="explanationText">請輸入參數並點擊開始，觀察圖形如何變形。</div>
+
+    <div id="quiz-section">
+        <h3>✏️ 換你試試看！</h3>
+        <p>根據上述原理，這個圖形的面積是多少？</p>
+        <input type="number" id="userAnswer" placeholder="輸入數字">
+        <button onclick="checkAnswer()" style="background: var(--secondary);">提交答案</button>
+        <div id="feedback" class="feedback"></div>
+    </div>
+</div>
+
+<script>
+    let currentArea = 0;
+
+    function resetUI() {
+        const type = document.getElementById('shapeType').value;
+        document.getElementById('group3').style.display = (type === 'trapezoid') ? 'flex' : 'none';
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('canvas-container').innerHTML = '';
+        document.getElementById('explanationText').innerText = "點擊按鈕開始演示。";
+        document.getElementById('feedback').innerText = "";
+    }
+
+    function startDemonstration() {
+        const type = document.getElementById('shapeType').value;
+        const b = parseFloat(document.getElementById('val1').value);
+        const h = parseFloat(document.getElementById('val2').value);
+        const a = parseFloat(document.getElementById('val3').value);
+        const container = document.getElementById('canvas-container');
+        container.innerHTML = '';
+        
+        let svgNS = "http://www.w3.org/2000/svg";
+        let svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        container.appendChild(svg);
+
+        if (type === 'parallelogram') {
+            currentArea = b * h;
+            showParallelogram(svg, b, h);
+        } else if (type === 'triangle') {
+            currentArea = (b * h) / 2;
+            showTriangle(svg, b, h);
+        } else if (type === 'trapezoid') {
+            currentArea = ((a + b) * h) / 2;
+            showTrapezoid(svg, a, b, h);
+        }
+
+        setTimeout(() => {
+            document.getElementById('quiz-section').style.display = 'block';
+        }, 2000);
+    }
+
+    function showParallelogram(svg, b, h) {
+        const offset = 40;
+        const startX = 50; const startY = 50;
+        
+        // 建立左側三角形 (割下來的部分)
+        let tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        tri.setAttribute("points", `${startX},${startY+h} ${startX+offset},${startY+h} ${startX+offset},${startY}`);
+        tri.setAttribute("fill", "#e74c3c");
+        
+        // 建立剩餘部分
+        let main = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        main.setAttribute("points", `${startX+offset},${startY+h} ${startX+b+offset},${startY+h} ${startX+b+offset},${startY} ${startX+offset},${startY}`);
+        main.setAttribute("fill", "#4a90e2");
+
+        svg.appendChild(main);
+        svg.appendChild(tri);
+
+        document.getElementById('explanationText').innerText = "原理：將平行四邊形左側切下一塊三角形，移補到右側，會變成一個長方形。面積 = 底 × 高。";
+
+        setTimeout(() => {
+            tri.style.transform = `translateX(${b}px)`;
+        }, 500);
+    }
+
+    function showTriangle(svg, b, h) {
+        const startX = 50; const startY = 50;
+        
+        function createTri(color, id) {
+            let t = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            t.setAttribute("points", `${startX},${startY+h} ${startX+b},${startY+h} ${startX+40},${startY}`);
+            t.setAttribute("fill", color);
+            t.style.transformOrigin = `${startX + b/2}px ${startY + h/2}px`;
+            return t;
+        }
+
+        let t1 = createTri("#4a90e2");
+        let t2 = createTri("#f39c12");
+        svg.appendChild(t1);
+        svg.appendChild(t2);
+
+        document.getElementById('explanationText').innerText = "原理：拿兩個完全一樣的三角形，將其中一個倒過來拼在一起，會組成一個平行四邊形。因此三角形面積是平行四邊形的一半。";
+
+        setTimeout(() => {
+            t2.style.transform = `rotate(180deg) translate(-${b-40}px, -${0}px)`;
+        }, 500);
+    }
+
+    function showTrapezoid(svg, a, b, h) {
+        const startX = 50; const startY = 50;
+        const offset = 30;
+
+        function createTrap(color) {
+            let t = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            t.setAttribute("points", `${startX},${startY+h} ${startX+b},${startY+h} ${startX+a+offset},${startY} ${startX+offset},${startY}`);
+            t.setAttribute("fill", color);
+            t.style.transformOrigin = `${startX + (b+offset)/2}px ${startY + h/2}px`;
+            return t;
+        }
+
+        let t1 = createTrap("#4a90e2");
+        let t2 = createTrap("#27ae60");
+        svg.appendChild(t1);
+        svg.appendChild(t2);
+
+        document.getElementById('explanationText').innerText = "原理：拿兩個完全一樣的梯形，將其中一個倒過來拼在一起，會組成一個底為(上底+下底)的平行四邊形。因此梯形面積 = (上底+下底) × 高 ÷ 2。";
+
+        setTimeout(() => {
+            t2.style.transform = `rotate(180deg) translate(-${b+a}px, 0px)`;
+        }, 500);
+    }
+
+    function checkAnswer() {
+        const userVal = parseFloat(document.getElementById('userAnswer').value);
+        const feedback = document.getElementById('feedback');
+        if (Math.abs(userVal - currentArea) < 0.1) {
+            feedback.innerText = "🎉 太棒了！答案正確！";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.innerText = `❌ 不太對喔，再想一下公式。提示：目前的計算結果應該是 ${currentArea}`;
+            feedback.className = "feedback wrong";
+        }
+    }
+</script>
+
+</body>
+</html>
