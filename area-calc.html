@@ -3,86 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五年級幾何面積原理探索</title>
+    <title>五年級幾何面積原理教學 V2.4</title>
     <style>
         :root {
-            --primary: #4a90e2;
-            --secondary: #f39c12;
-            --success: #27ae60;
+            --primary: #6da3e5; 
+            --secondary: #f39c12; 
+            --success: #27ae60; 
             --error: #e74c3c;
-            --bg: #f8f9fa;
+            --bg: #f4f7f9;
         }
         body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }
-        h1 { color: #2c3e50; text-align: center; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 850px; width: 100%; }
+        h1 { color: #2c3e50; text-align: center; font-size: 24px; margin-bottom: 25px; }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .input-group { display: flex; flex-direction: column; }
         select, input, button { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; margin-top: 5px; }
-        button { cursor: pointer; transition: 0.3s; background: var(--primary); color: white; border: none; font-weight: bold; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        #canvas-container { position: relative; width: 100%; height: 300px; border: 2px dashed #ccc; margin: 20px 0; overflow: hidden; background: #fff; }
-        .shape { position: absolute; transition: all 1.5s ease-in-out; opacity: 0.8; }
-        .explanation { background: #eef2f7; padding: 15px; border-left: 5px solid var(--primary); margin: 10px 0; min-height: 50px; }
-        #quiz-section { display: none; border-top: 2px solid #eee; pt: 20px; text-align: center; }
-        .feedback { font-weight: bold; margin-top: 10px; }
-        .correct { color: var(--success); }
-        .wrong { color: var(--error); }
+        button { cursor: pointer; transition: 0.3s; background: #6da3e5; color: white; border: none; font-weight: bold; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        #canvas-container { position: relative; width: 100%; height: 380px; border: 1px dashed #ccc; margin: 20px 0; overflow: hidden; background: #fff; border-radius: 10px; }
+        .shape { transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0.8; }
+        .explanation { background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; min-height: 50px; color: #444; }
+        .measure-line { stroke: #555; stroke-width: 1.2; stroke-dasharray: 4,3; }
+        .measure-text { fill: #333; font-size: 13px; font-weight: bold; }
+        .label-fade { animation: fadeIn 0.8s forwards; opacity: 0; }
+        @keyframes fadeIn { to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📐 幾何圖形面積原理實驗室</h1>
+    <h1>📐 幾何圖形面積原理教學 V2.4</h1>
     
     <div class="controls">
         <div class="input-group">
             <label>選擇圖形：</label>
             <select id="shapeType" onchange="resetUI()">
-                <option value="parallelogram">平行四邊形 (割補成矩形)</option>
-                <option value="triangle">三角形 (拼湊成平行四邊形)</option>
-                <option value="trapezoid">梯形 (拼湊成平行四邊形)</option>
+                <option value="parallelogram">平行四邊形 (割補)</option>
+                <option value="triangle" selected>三角形 (拼湊)</option>
+                <option value="trapezoid">梯形 (拼湊)</option>
             </select>
         </div>
         <div class="input-group">
-            <label id="label1">底 (b):</label>
-            <input type="number" id="val1" value="200" min="50" max="400">
+            <label>底 (b):</label>
+            <input type="number" id="val1" value="200" min="50" max="300">
         </div>
         <div class="input-group">
-            <label id="label2">高 (h):</label>
-            <input type="number" id="val2" value="100" min="50" max="250">
+            <label>高 (h):</label>
+            <input type="number" id="val2" value="120" min="50" max="200">
         </div>
         <div class="input-group" id="group3" style="display:none;">
             <label>上底 (a):</label>
-            <input type="number" id="val3" value="100" min="50" max="300">
+            <input type="number" id="val3" value="100" min="30" max="250">
         </div>
     </div>
 
-    <button onclick="startDemonstration()" style="width: 100%;">開始動畫演示原理</button>
+    <button onclick="startDemonstration()" style="width: 100%; font-size: 18px;">▶ 開始動畫演示</button>
 
-    <div id="canvas-container">
-        </div>
-
-    <div class="explanation" id="explanationText">請輸入參數並點擊開始，觀察圖形如何變形。</div>
-
-    <div id="quiz-section">
-        <h3>✏️ 換你試試看！</h3>
-        <p>根據上述原理，這個圖形的面積是多少？</p>
-        <input type="number" id="userAnswer" placeholder="輸入數字">
-        <button onclick="checkAnswer()" style="background: var(--secondary);">提交答案</button>
-        <div id="feedback" class="feedback"></div>
-    </div>
+    <div id="canvas-container"></div>
+    <div class="explanation" id="explanationText">請輸入參數並開始演示。</div>
 </div>
 
 <script>
-    let currentArea = 0;
-
+    const svgNS = "http://www.w3.org/2000/svg";
+    
     function resetUI() {
         const type = document.getElementById('shapeType').value;
         document.getElementById('group3').style.display = (type === 'trapezoid') ? 'flex' : 'none';
-        document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('canvas-container').innerHTML = '';
-        document.getElementById('explanationText').innerText = "點擊按鈕開始演示。";
-        document.getElementById('feedback').innerText = "";
+        document.getElementById('explanationText').innerText = "準備就緒。";
+    }
+
+    function createSvgCanvas() {
+        const container = document.getElementById('canvas-container');
+        container.innerHTML = '';
+        let svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", "0 0 800 380");
+        container.appendChild(svg);
+        return svg;
     }
 
     function startDemonstration() {
@@ -90,114 +88,104 @@
         const b = parseFloat(document.getElementById('val1').value);
         const h = parseFloat(document.getElementById('val2').value);
         const a = parseFloat(document.getElementById('val3').value);
-        const container = document.getElementById('canvas-container');
-        container.innerHTML = '';
+        const svg = createSvgCanvas();
         
-        let svgNS = "http://www.w3.org/2000/svg";
-        let svg = document.createElementNS(svgNS, "svg");
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("height", "100%");
-        container.appendChild(svg);
+        const startX = 200, startY = 250;
 
-        if (type === 'parallelogram') {
-            currentArea = b * h;
-            showParallelogram(svg, b, h);
-        } else if (type === 'triangle') {
-            currentArea = (b * h) / 2;
-            showTriangle(svg, b, h);
+        if (type === 'triangle') {
+            const topIdx = 60; // 頂點相對於左下角的水平位移
+            const pts = `0,0 ${b},0 ${topIdx},-${h}`;
+            
+            let t1 = drawPoly(svg, pts, "var(--primary)", startX, startY);
+            // 初始讓黃色三角形稍微分開一點
+            let t2 = drawPoly(svg, pts, "var(--secondary)", startX + b + 50, startY);
+            t2.style.transformOrigin = `${b/2}px -${h/2}px`;
+
+            document.getElementById('explanationText').innerText = "拿兩個完全一樣的三角形，將第二個旋轉 180 度...";
+
+            setTimeout(() => {
+                t2.style.transform = `translate(${startX + b + 50}px, ${startY}px) rotate(180deg)`;
+            }, 500);
+
+            setTimeout(() => {
+                // 最終拼合位置修正：
+                // 藍色三角形頂點在 startX + topIdx
+                // 旋轉後的黃色三角形左上角對接藍色頂點，因此 X 位移應為 startX + topIdx
+                t2.style.transform = `translate(${startX + topIdx}px, ${startY}px) rotate(180deg)`;
+                document.getElementById('explanationText').innerText = "向左移動拼合！組成一個底為 b、高為 h 的平行四邊形。";
+                
+                addLabel(svg, startX, startY + 20, startX + b, startY + 20, `底 b=${b}`);
+                addLabel(svg, startX + topIdx, startY, startX + topIdx, startY - h, `高 h=${h}`, -15);
+            }, 2000);
+
         } else if (type === 'trapezoid') {
-            currentArea = ((a + b) * h) / 2;
-            showTrapezoid(svg, a, b, h);
-        }
+            const off = 40; // 梯形斜率偏移
+            const pts = `0,0 ${b},0 ${a+off},-${h} ${off},-${h}`;
+            
+            let t1 = drawPoly(svg, pts, "var(--primary)", startX, startY);
+            let t2 = drawPoly(svg, pts, "var(--success)", startX + b + 50, startY);
+            t2.style.transformOrigin = `${b/2}px -${h/2}px`;
 
-        setTimeout(() => {
-            document.getElementById('quiz-section').style.display = 'block';
-        }, 2000);
-    }
+            document.getElementById('explanationText').innerText = "拿兩個一樣的梯形，將第二個旋轉 180 度...";
 
-    function showParallelogram(svg, b, h) {
-        const offset = 40;
-        const startX = 50; const startY = 50;
-        
-        // 建立左側三角形 (割下來的部分)
-        let tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        tri.setAttribute("points", `${startX},${startY+h} ${startX+offset},${startY+h} ${startX+offset},${startY}`);
-        tri.setAttribute("fill", "#e74c3c");
-        
-        // 建立剩餘部分
-        let main = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        main.setAttribute("points", `${startX+offset},${startY+h} ${startX+b+offset},${startY+h} ${startX+b+offset},${startY} ${startX+offset},${startY}`);
-        main.setAttribute("fill", "#4a90e2");
+            setTimeout(() => {
+                t2.style.transform = `translate(${startX + b + 50}px, ${startY}px) rotate(180deg)`;
+            }, 500);
 
-        svg.appendChild(main);
-        svg.appendChild(tri);
+            setTimeout(() => {
+                // 最終拼合位置修正：
+                // 綠色梯形倒過來後，其左上角應對接藍色梯形的右上角 (startX + a + off)
+                t2.style.transform = `translate(${startX + off + a}px, ${startY}px) rotate(180deg)`;
+                document.getElementById('explanationText').innerText = "拼湊成一個大的平行四邊形！底為 (上底 a + 下底 b)。";
+                
+                addLabel(svg, startX + off, startY - h - 15, startX + a + off, startY - h - 15, `上底 a=${a}`);
+                addLabel(svg, startX, startY + 20, startX + b, startY + 20, `下底 b=${b}`);
+                addLabel(svg, startX, startY + 50, startX + b + a, startY + 50, `平行四邊形的底 = a + b = ${a+b}`);
+            }, 2000);
 
-        document.getElementById('explanationText').innerText = "原理：將平行四邊形左側切下一塊三角形，移補到右側，會變成一個長方形。面積 = 底 × 高。";
-
-        setTimeout(() => {
-            tri.style.transform = `translateX(${b}px)`;
-        }, 500);
-    }
-
-    function showTriangle(svg, b, h) {
-        const startX = 50; const startY = 50;
-        
-        function createTri(color, id) {
-            let t = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            t.setAttribute("points", `${startX},${startY+h} ${startX+b},${startY+h} ${startX+40},${startY}`);
-            t.setAttribute("fill", color);
-            t.style.transformOrigin = `${startX + b/2}px ${startY + h/2}px`;
-            return t;
-        }
-
-        let t1 = createTri("#4a90e2");
-        let t2 = createTri("#f39c12");
-        svg.appendChild(t1);
-        svg.appendChild(t2);
-
-        document.getElementById('explanationText').innerText = "原理：拿兩個完全一樣的三角形，將其中一個倒過來拼在一起，會組成一個平行四邊形。因此三角形面積是平行四邊形的一半。";
-
-        setTimeout(() => {
-            t2.style.transform = `rotate(180deg) translate(-${b-40}px, -${0}px)`;
-        }, 500);
-    }
-
-    function showTrapezoid(svg, a, b, h) {
-        const startX = 50; const startY = 50;
-        const offset = 30;
-
-        function createTrap(color) {
-            let t = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            t.setAttribute("points", `${startX},${startY+h} ${startX+b},${startY+h} ${startX+a+offset},${startY} ${startX+offset},${startY}`);
-            t.setAttribute("fill", color);
-            t.style.transformOrigin = `${startX + (b+offset)/2}px ${startY + h/2}px`;
-            return t;
-        }
-
-        let t1 = createTrap("#4a90e2");
-        let t2 = createTrap("#27ae60");
-        svg.appendChild(t1);
-        svg.appendChild(t2);
-
-        document.getElementById('explanationText').innerText = "原理：拿兩個完全一樣的梯形，將其中一個倒過來拼在一起，會組成一個底為(上底+下底)的平行四邊形。因此梯形面積 = (上底+下底) × 高 ÷ 2。";
-
-        setTimeout(() => {
-            t2.style.transform = `rotate(180deg) translate(-${b+a}px, 0px)`;
-        }, 500);
-    }
-
-    function checkAnswer() {
-        const userVal = parseFloat(document.getElementById('userAnswer').value);
-        const feedback = document.getElementById('feedback');
-        if (Math.abs(userVal - currentArea) < 0.1) {
-            feedback.innerText = "🎉 太棒了！答案正確！";
-            feedback.className = "feedback correct";
         } else {
-            feedback.innerText = `❌ 不太對喔，再想一下公式。提示：目前的計算結果應該是 ${currentArea}`;
-            feedback.className = "feedback wrong";
+            // 平行四邊形邏輯
+            const cut = 40;
+            const ptsMain = `${cut},0 ${b+cut},0 ${b+cut},-${h} ${cut},-${h}`;
+            const ptsTri = `0,0 ${cut},0 ${cut},-${h}`;
+            
+            let m = drawPoly(svg, ptsMain, "var(--primary)", startX, startY);
+            let t = drawPoly(svg, ptsTri, "var(--error)", startX, startY);
+
+            document.getElementById('explanationText').innerText = "切割平行四邊形...";
+
+            setTimeout(() => {
+                t.style.transform = `translate(${startX + b}px, ${startY}px)`;
+                document.getElementById('explanationText').innerText = "補成矩形，面積 = 底 × 高。";
+                addLabel(svg, startX + cut, startY + 20, startX + b + cut, startY + 20, `底 b=${b}`);
+                addLabel(svg, startX + b + cut + 10, startY, startX + b + cut + 10, startY - h, `h=${h}`, 15);
+            }, 800);
         }
+    }
+
+    function drawPoly(svg, pts, color, x, y) {
+        let p = document.createElementNS(svgNS, "polygon");
+        p.setAttribute("points", pts);
+        p.setAttribute("fill", color);
+        p.setAttribute("class", "shape");
+        p.style.transform = `translate(${x}px, ${y}px)`;
+        svg.appendChild(p);
+        return p;
+    }
+
+    function addLabel(svg, x1, y1, x2, y2, txt, xOff = 0) {
+        let g = document.createElementNS(svgNS, "g");
+        g.setAttribute("class", "label-fade");
+        let l = document.createElementNS(svgNS, "line");
+        l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+        l.setAttribute("class", "measure-line");
+        let t = document.createElementNS(svgNS, "text");
+        t.setAttribute("x", (x1+x2)/2 + xOff); t.setAttribute("y", (y1+y2)/2 + 5);
+        t.setAttribute("class", "measure-text"); t.setAttribute("text-anchor", "middle");
+        t.textContent = txt;
+        g.appendChild(l); g.appendChild(t);
+        svg.appendChild(g);
     }
 </script>
-
 </body>
 </html>
