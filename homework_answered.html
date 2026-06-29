@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>This is a programming homework</title>
+
+  <style>
+    .display {
+      display: block;
+      width: 320px;
+      height: 50px;
+      font-size: 24px;
+      text-align: right;
+      line-height: 50px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 80px;
+      height: 80px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Welcome to the programming HOMEWORK!</h1>
+  <p>This is suppose to be a simple calculator</p>
+
+
+  <span id="display" class="display">0</span>
+
+
+  <!-- 
+    ANSWER: 這段所有數字 button 都要加上 onclick="enterNumber(按鈕上的數字)"，這樣才會在被點擊時立刻呼叫到 enterNumber() 這個 function
+    ANSWER: 「等於」button 要加上 onclick="calculate()"，這樣才會在被點擊時立刻呼叫到 calculate() 這個 function
+    ANSWER: 四個運算符號 button 都要加上 onclick="enterOperator('按鈕上的運算符號')"，這樣才會在被點擊時立刻呼叫到 enterOperator() 這個 function
+    -->
+  <table>
+    <tr>
+      <td><button onclick="enterNumber(7)">7</button></td>
+      <td><button onclick="enterNumber(8)">8</button></td>
+      <td><button onclick="enterNumber(9)">9</button></td>
+      <td><button id="btn-op-add" onclick="enterOperator('+')">+</button></td>
+    </tr>
+    <tr>
+      <td><button onclick="enterNumber(4)">4</button></td>
+      <td><button onclick="enterNumber(5)">5</button></td>
+      <td><button onclick="enterNumber(6)">6</button></td>
+      <td><button id="btn-op-sub" onclick="enterOperator('-')">-</button></td>
+    </tr>
+    <tr>
+      <td><button onclick="enterNumber(1)">1</button></td>
+      <td><button onclick="enterNumber(2)">2</button></td>
+      <td><button onclick="enterNumber(3)">3</button></td>
+      <td><button id="btn-op-mul" onclick="enterOperator('*')">*</button></td>
+    </tr>
+    <tr>
+      <td><button onclick="enterNumber(0)">0</button></td>
+      <td><button onclick="resetDisplay()">C</button></td>
+      <td><button onclick="calculate()">=</button></td>
+      <td><button id="btn-op-div" onclick="enterOperator('/')">/</button></td>
+    </tr>
+
+  </table>
+
+  
+
+  <script>
+
+    var a; // 第一個數字
+    var b; // 第二個數字
+    var operator; // 運算符號
+    var shouldResetDisplay = false; // 按過運算符號後，下一次輸入數字要重新開始
+
+    // 這個 function 會調整四個運算符號按鈕的 disabled 屬性
+    // 當 disabled 為 true 時，按鈕會變灰且無法點擊，反之則可以點擊
+    function setOperatorButtonsStatus(disabled) {
+      document.getElementById('btn-op-add').disabled = disabled;
+      document.getElementById('btn-op-sub').disabled = disabled;
+      document.getElementById('btn-op-mul').disabled = disabled;
+      document.getElementById('btn-op-div').disabled = disabled;
+    }
+
+    // 按 C 按鈕時，要清除顯示器上的內容，並重置之前記錄的數字和運算符號
+    function resetDisplay() {
+      var display = document.getElementById('display');
+      display.innerText = '0';
+      a = null;
+      b = null;
+      operator = null;
+      shouldResetDisplay = false;
+      setOperatorButtonsStatus(false);
+    }
+
+    // 按數字按鈕時，顯示器要更新顯示輸入的數字
+    //TODO: HTML 裡的十個數字按鈕，要加上什麼才會呼叫到這個呢？ (Answered above)
+    function enterNumber(num) {
+      var display = document.getElementById('display');
+
+      if (shouldResetDisplay) {
+        display.innerText = num;
+        shouldResetDisplay = false;
+        return;
+      }
+
+      if (display.innerText === '0') {
+        display.innerText = num;
+      } else {
+        display.innerText += num;
+      }
+    }
+
+    // 按任一運算符號按鈕時，要記錄第一個數字和運算符號，並於下一次按數字按鈕時，顯示器要開始更新顯示第二個輸入的數字
+    //TODO: HTML 裡的四個運算符號按鈕，要加上什麼才會呼叫到這個呢？ (Answered above)
+    function enterOperator(op) {
+      // 如果使用者已經按過運算符號，則（在按等於前）不再做任何事。return 就是直接跳出這個 function 的意思
+      if (operator) {
+        return;
+      }
+
+      var display = document.getElementById('display');
+      a = Number(display.innerText);//記得有提到 parseInt() 嗎？它可以把文字轉成整數，但這裡用 Number() 是一樣且更好懂的做法
+      operator = op;
+      shouldResetDisplay = true;
+      setOperatorButtonsStatus(true);
+    }
+
+    // 按等於按鈕時，要根據之前記錄的第一個數字和運算符號，計算出結果並顯示在顯示器上
+    function calculate() {
+      // 如果運算符號沒被按過，return 就是直接跳出這個 function 的意思，不再做任何事
+      if (!operator) {
+        return;
+      }
+
+      //TODO: Bonus 題：如果使用者嘗試計算除以 0...
+
+      var display = document.getElementById('display');
+      b = Number(display.innerText);//記得有提到 parseInt() 嗎？它可以把文字轉成整數，但這裡用 Number() 是一樣且更好懂的做法
+      var result;
+
+      //ANSWER: 這裡主要以條件判斷式處理四種不同的運算符號。因為使用者剛點擊的運算符號已經存在 operator 變數裡，所以這裡就可以用 if/else if/else 來判斷 operator 的值，並做出對應的運算
+      // 一句話來說就是「如果運算符號是 +，就做加法；如果是 -，就做減法；如果是 *，就做乘法；如果是 /，就做除法」
+      if (operator === '+') {
+        //TODO: 這行要寫什麼？
+        result = a + b;
+      } else if (operator === '-') {
+        //TODO: 這行要寫什麼？
+        result = a - b;
+      } else if (operator === '*') {
+        //TODO: 這行要寫什麼？
+        result = a * b;
+      } else if (operator === '/') {
+        //TODO: 這行要寫什麼？
+        if (b === 0) { // ANSWER: Bonus 題：如果使用者嘗試計算除以 0，則顯示器要顯示 alert，並且 reset 顯示器的內容為 0，並且重置之前記錄的數字和運算符號
+          alertDivByZero();
+          return;
+        }
+        result = a / b;
+      }
+
+      display.innerText = result;
+
+      // Reset everything after calculation，以便下次開始
+      operator = null;
+      shouldResetDisplay = true;
+      setOperatorButtonsStatus(false);//開放所有運算符號按鈕
+    }
+
+    /**
+     * Bonus 題：如果使用者嘗試計算除以 0，則顯示器要顯示 alert，並且 reset 顯示器的內容為 0，並且重置之前記錄的數字和運算符號
+     * 下面的 function 可以顯示 alert 但不會重置，你要加上點什麼東西（也許，呼叫某個 function？）
+     * 並且記得把這個 function 放在 calculate() 裡面，判斷當使用者嘗試計算除以 0 時要呼叫這個 function
+     */
+    function alertDivByZero() {
+      alert('不可以除以0');
+      //TODO: Bonus 題：這裡要加上什麼東西？
+      //ANSWER: 這裡要加上 resetDisplay()，以便重置顯示器的內容為 0，並且重置之前記錄的數字和運算符號
+      resetDisplay();
+    }
+
+  </script>
+
+
+</body>
+
+
+</html>
